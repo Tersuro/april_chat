@@ -9,8 +9,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,20 +38,39 @@ public class MainChatController {
     }
 
     public void showAbout(ActionEvent actionEvent) {
-        new About();
+        Label secondLabel = new Label("About Window");
+
+        StackPane secondaryLayout = new StackPane();
+        secondaryLayout.getChildren().add(secondLabel);
+
+        Scene aboutScene = new Scene(secondaryLayout, 230, 100);
+
+        Stage aboutWindow = new Stage();
+        aboutWindow.setTitle("About");
+        aboutWindow.setScene(aboutScene);
+        aboutWindow.setAlwaysOnTop(true);
+
+        Stage aboutStage = new Stage();
+        aboutWindow.setX(aboutStage.getX() + 200);
+        aboutWindow.setY(aboutStage.getY() + 100);
+
+        aboutWindow.show();
+       // new About();
     }
 
-    public class About extends JFrame {
-        public About() {
-            setTitle("About");
-            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            setBounds(800, 200, 400, 400);
-            JLabel label1 = new JLabel("About window");
-            add(label1, BorderLayout.NORTH);
-            setVisible(true);
-            setAlwaysOnTop(true);
-        }
-    }
+
+
+//    public class About extends JFrame {
+//        public About() {
+//            setTitle("About");
+//            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+//            setBounds(800, 200, 400, 400);
+//            JLabel label1 = new JLabel("About window");
+//            add(label1, BorderLayout.NORTH);
+//            setVisible(true);
+//            setAlwaysOnTop(true);
+//        }
+//    }
 
     public void showHelp(ActionEvent actionEvent) throws URISyntaxException, IOException {
         Desktop desktop = Desktop.getDesktop();
