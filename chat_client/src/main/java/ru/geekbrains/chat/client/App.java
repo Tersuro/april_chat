@@ -14,6 +14,7 @@ public class App extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    public static Stage stage1;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -26,6 +27,7 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setAlwaysOnTop(true);
         stage.setTitle("April Chat");
+        stage1 = stage;
         stage.show();
     }
 }

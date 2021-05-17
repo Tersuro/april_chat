@@ -37,6 +37,11 @@
                 <MenuItem onAction="#showAbout" text="About" />
             </Menu>
         </MenuBar>
+        <HBox>
+            <TextField fx:id="loginField"/>
+            <PasswordField fx:id="passwordField"/>
+            <Button fx:id="btnSendAuth" text="log in" onAction="#sendAuth"/>
+        </HBox>
         <HBox VBox.vgrow="ALWAYS">
             <TextArea fx:id="chatArea" editable="false" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                 <HBox.margin>
@@ -58,9 +63,9 @@
                 <HBox.margin>
                     <Insets left="5.0" right="5.0" />
                 </HBox.margin>
-            <font>
-               <Font size="24.0" />
-            </font>
+                <font>
+                    <Font size="24.0" />
+                </font>
             </TextField>
             <Button fx:id="btnSendMessage" onAction="#sendMessage" prefHeight="70.0" prefWidth="150.0" text="SEND">
                 <HBox.margin>
