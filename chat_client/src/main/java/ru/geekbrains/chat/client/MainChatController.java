@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 
 public class MainChatController implements Initializable, MessageProcessor {
 
-
+    private static final String PUBLIC = "PUBLIC";
     public TextArea chatArea;
     public ListView onlineUsers;
     public TextField inputField;
@@ -42,7 +42,11 @@ public class MainChatController implements Initializable, MessageProcessor {
     private String currentName;
 
     public void mockAction(ActionEvent actionEvent) {
-        System.out.println("MOCK!");
+        try {
+            throw new RuntimeException("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!");
+        } catch (RuntimeException e) {
+            showError(e);
+        }
     }
 
     public void exit(ActionEvent actionEvent) {
@@ -93,15 +97,24 @@ public class MainChatController implements Initializable, MessageProcessor {
         String text = inputField.getText();
         if (text.isEmpty()) return;
         ChatMessage msg = new ChatMessage();
-        msg.setMessageType(MessageType.PUBLIC);
+        String addressee = (String) this.onlineUsers.getSelectionModel().getSelectedItem();
+        if (addressee.equals(PUBLIC)) msg.setMessageType(MessageType.PUBLIC);
+        else {
+            msg.setMessageType(MessageType.PRIVATE);
+            msg.setTo(addressee);
+        }
+
         msg.setFrom(currentName);
         msg.setBody(text);
         messageService.send(msg.marshall());
+        chatArea.appendText(String.format("[ME] %s\n", text));
         inputField.clear();
     }
 
-    private void appendTextFromTF(ChatMessage msg) {
-        String text = String.format("[%s] %s\n", msg.getFrom(), msg.getBody());
+    private void appendTextToChatArea(ChatMessage msg) {
+        if (msg.getFrom().equals(this.currentName)) return;
+        String modifier = msg.getMessageType().equals(MessageType.PUBLIC) ? "[pub]" : "[priv]";
+        String text = String.format("[%s] %s %s\n", msg.getFrom(), modifier, msg.getBody());
         chatArea.appendText(text);
     }
 
@@ -112,7 +125,7 @@ public class MainChatController implements Initializable, MessageProcessor {
         VBox dialog = new VBox();
         Label label = new Label("Trace:");
         TextArea textArea = new TextArea();
-        //TODO
+
         StringBuilder builder = new StringBuilder();
         for (StackTraceElement el : e.getStackTrace()) {
             builder.append(el).append(System.lineSeparator());
@@ -123,10 +136,22 @@ public class MainChatController implements Initializable, MessageProcessor {
         alert.showAndWait();
     }
 
+    private void showError(ChatMessage msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Something went wrong!");
+        alert.setHeaderText(msg.getMessageType().toString());
+        VBox dialog = new VBox();
+        Label label = new Label("Error:");
+        TextArea textArea = new TextArea();
+        textArea.setText(msg.getBody());
+        dialog.getChildren().addAll(label, textArea);
+        alert.getDialogPane().setContent(dialog);
+        alert.showAndWait();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.messageService = new ChatMessageServiceImpl("localhost", 12256, this);
-        messageService.connect();
     }
 
     @Override
@@ -136,22 +161,31 @@ public class MainChatController implements Initializable, MessageProcessor {
                     System.out.println("Received message");
 
                     switch (message.getMessageType()) {
-                        case PUBLIC, PRIVATE -> appendTextFromTF(message);
+                        case PUBLIC, PRIVATE -> appendTextToChatArea(message);
                         case CLIENT_LIST -> refreshOnlineUsers(message);
                         case AUTH_CONFIRM -> {
                             this.currentName = message.getBody();
                             App.stage1.setTitle(currentName);
                         }
+                        case ERROR -> showError(message);
                     }
                 }
         );
     }
 
     private void refreshOnlineUsers(ChatMessage message) {
+        message.getOnlineUsers().add(0, PUBLIC);
         this.onlineUsers.setItems(FXCollections.observableArrayList(message.getOnlineUsers()));
+        this.onlineUsers.getSelectionModel().selectFirst();
     }
 
     public void sendAuth(ActionEvent actionEvent) {
+        try {
+            if (!messageService.isConnected()) messageService.connect();
+        } catch (Exception e) {
+            showError(e);
+        }
+
         String log = loginField.getText();
         String pass = passwordField.getText();
         if (log.isEmpty() || pass.isEmpty()) return;
