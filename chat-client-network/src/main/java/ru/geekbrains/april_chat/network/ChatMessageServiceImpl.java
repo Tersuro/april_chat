@@ -25,6 +25,11 @@ public class ChatMessageServiceImpl implements ChatMessageService{
     }
 
     @Override
+    public boolean isConnected() {
+        return this.networkService != null && this.networkService.getSocket().isConnected();
+    }
+
+    @Override
     public void send(String msg) {
         networkService.sendMessage(msg);
     }

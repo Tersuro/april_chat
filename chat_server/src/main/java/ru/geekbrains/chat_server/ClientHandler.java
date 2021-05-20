@@ -7,10 +7,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ClientHandler {
 //    static int clientCounter = 0;
 //    private int clientNumber;
+    private static final long AUTH_TIMEOUT = 120_000;
     private Socket socket;
     private ChatServer chatServer;
     private DataOutputStream outputStream;
@@ -73,6 +76,28 @@ public class ClientHandler {
     }
 
     private void authenticate() {
+
+        Timer timeOut = new Timer();
+        timeOut.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (this) {
+                        if (currentUsername == null) {
+                            ChatMessage response = new ChatMessage();
+                            response.setMessageType(MessageType.ERROR);
+                            response.setBody("Authentication timeout!\nPlease, try again later!");
+                            sendMessage(response);
+                            Thread.sleep(50);
+                            socket.close();
+                        }
+                    }
+                } catch (InterruptedException | IOException e) {
+                    e.getStackTrace();
+                }
+            }
+        }, AUTH_TIMEOUT);
+
         System.out.println("Started client auth...");
 
         try {
