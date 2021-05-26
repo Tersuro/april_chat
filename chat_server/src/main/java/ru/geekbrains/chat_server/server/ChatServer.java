@@ -1,8 +1,9 @@
-package ru.geekbrains.chat_server;
+package ru.geekbrains.chat_server.server;
 
 import ru.geekbrains.april_chat.common.ChatMessage;
 import ru.geekbrains.april_chat.common.MessageType;
 import ru.geekbrains.chat_server.auth.AuthService;
+import ru.geekbrains.chat_server.auth.DBAuthService;
 import ru.geekbrains.chat_server.auth.PrimitiveInMemoryAuthService;
 
 import java.io.IOException;
@@ -18,7 +19,8 @@ public class ChatServer {
 
     public ChatServer() {
         this.listOnlineUsers = new ArrayList<>();
-        this.authService = new PrimitiveInMemoryAuthService();
+//        this.authService = new PrimitiveInMemoryAuthService();
+        this.authService = new DBAuthService();
     }
 
     public void start() {

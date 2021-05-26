@@ -1,4 +1,4 @@
-package ru.geekbrains.chat_server;
+package ru.geekbrains.chat_server.server;
 
 import ru.geekbrains.april_chat.common.ChatMessage;
 import ru.geekbrains.april_chat.common.MessageType;
