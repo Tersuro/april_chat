@@ -28,7 +28,7 @@ public class PrimitiveInMemoryAuthService implements AuthService {
         for (User user : users) {
             if (user.getLogin().equals(login) && user.getPassword().equals(password)) return user.getUsername();
         }
-        return null;
+        return "";
     }
 
     @Override

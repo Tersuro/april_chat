@@ -7,6 +7,7 @@ public class ClientsDBService {
     private final String DRIVER = "org.sqlite.JDBC";
     private final String CONNECTION = "jdbc:sqlite:chat_server/db/users.db";
     private final String GET_USERNAME = "select username from users where login = ? and password = ?;";
+    private final String CHANGE_USERNAME = "update users set username = ? where username = ?;";
     private final String CREATE_DB = "create table if not exists users (id integer primary key autoincrement, login text unique not null, password text not null, username text unique not null);";
     private Connection connection;
 
@@ -23,6 +24,15 @@ public class ClientsDBService {
         if (instance != null) return instance;
         instance = new ClientsDBService();
         return instance;
+    }
+
+    public String changeUsername(String oldName, String newName) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(CHANGE_USERNAME)) {
+            ps.setString(1, newName);
+            ps.setString(2, oldName);
+            if (ps.executeUpdate() > 0) return newName;
+        }
+        return oldName;
     }
 
     public String getClientNameByLoginPass(String login, String pass) {
