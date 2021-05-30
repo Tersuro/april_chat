@@ -11,8 +11,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ClientHandler {
-//    static int clientCounter = 0;
-//    private int clientNumber;
     private static final long AUTH_TIMEOUT = 120_000;
     private Socket socket;
     private ChatServer chatServer;
@@ -35,10 +33,8 @@ public class ClientHandler {
     public void handle() {
         new Thread(() -> {
             try {
-//                while(!Thread.currentThread().isInterrupted() || socket.isConnected()) {
                 authenticate();
                 readMessages();
-//                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -54,6 +50,19 @@ public class ClientHandler {
                 switch (message.getMessageType()) {
                     case PUBLIC -> chatServer.sendBroadcastMessage(message);
                     case PRIVATE -> chatServer.sendPrivateMessage(message);
+                    case CHANGE_USERNAME -> {
+                        System.out.printf("Got change un f: %s n %s", this.currentUsername, message.getBody());
+                        String newName = chatServer.getAuthService().changeUsername(this.currentUsername, message.getBody());
+                        ChatMessage response = new ChatMessage();
+                        if (newName == null && newName.isEmpty()) {
+                            response.setMessageType(MessageType.ERROR);
+                            response.setBody("Something went wrong!");
+                        } else {
+                            response.setMessageType(MessageType.CHANGE_USERNAME_CONFIRM);
+                            response.setBody(newName);
+                        }
+                        sendMessage(response);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -77,7 +86,7 @@ public class ClientHandler {
 
     private void authenticate() {
 
-        Timer timeOut = new Timer();
+        Timer timeOut = new Timer(true);
         timeOut.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -108,7 +117,7 @@ public class ClientHandler {
                 String username = chatServer.getAuthService().getUsernameByLoginAndPassword(msg.getLogin(), msg.getPassword());
                 ChatMessage response = new ChatMessage();
 
-                if (username == null) {
+                if (username.isEmpty()) {
                     response.setMessageType(MessageType.ERROR);
                     response.setBody("Wrong username or password!");
                     System.out.println("Wrong credentials");

@@ -2,6 +2,8 @@ package ru.geekbrains.chat_server.auth;
 
 import ru.geekbrains.chat_server.db.ClientsDBService;
 
+import java.sql.SQLException;
+
 public class DBAuthService implements AuthService{
     private ClientsDBService dbService;
     @Override
@@ -21,7 +23,11 @@ public class DBAuthService implements AuthService{
 
     @Override
     public String changeUsername(String oldName, String newName) {
-        return null;
+        try {
+            return dbService.changeUsername(oldName, newName);
+        } catch (SQLException e) {
+            throw new RuntimeException("Username change unsuccessful");
+        }
     }
 
     @Override
