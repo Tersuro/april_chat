@@ -11,16 +11,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatServer {
     private static final int PORT = 12256;
     private List<ClientHandler> listOnlineUsers;
     private AuthService authService;
+    private ExecutorService executorService;
 
     public ChatServer() {
         this.listOnlineUsers = new ArrayList<>();
 //        this.authService = new PrimitiveInMemoryAuthService();
         this.authService = new DBAuthService();
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     public void start() {
@@ -38,6 +42,7 @@ public class ChatServer {
             e.printStackTrace();
         } finally {
             authService.stop();
+            this.executorService.shutdownNow();
         }
     }
 
@@ -84,5 +89,9 @@ public class ChatServer {
 
     public AuthService getAuthService() {
         return authService;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }

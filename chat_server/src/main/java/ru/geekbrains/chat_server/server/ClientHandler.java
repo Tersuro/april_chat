@@ -31,14 +31,16 @@ public class ClientHandler {
     }
 
     public void handle() {
-        new Thread(() -> {
+//        new Thread(() -> {
+        chatServer.getExecutorService().execute(() -> {
             try {
                 authenticate();
                 readMessages();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+ //       }).start();
     }
 
     private void readMessages() throws IOException {
